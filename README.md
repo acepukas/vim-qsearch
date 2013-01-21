@@ -3,9 +3,9 @@ Qsearch
 
 Qsearch is a simple plugin which uses GNU grep to make searching
 files for text recursively (below the current working directory)
-"quicker". Quicker, at least than the built in :Vimgrep command.
+"quicker". Quicker, at least than the built in :vimgrep command.
 This search is **not regex capable**. For regex searches, use the
-built in :Vimgrep for now. Since this plugin relies on the shell grep
+built in :vimgrep for now. Since this plugin relies on the shell grep
 command, this plugin does not work on windows platforms.
 
 Results of searches are loaded into the quickfix list along with
