@@ -9,7 +9,7 @@ built in :Vimgrep for now. Since this plugin relies on the shell grep
 command, this plugin does not work on windows platforms.
 
 Mappings
-========
+--------
 
 The basic idea is to be able to search a codebase based on the current
 "word" under the cursor.
@@ -32,7 +32,7 @@ Mapping:
     :Qsearch {query}
 
 Configuration
-=============
+-------------
 
 Directories can be excluded from searches by adding them to the
 following global variable definition:
