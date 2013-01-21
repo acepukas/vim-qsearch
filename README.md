@@ -8,6 +8,12 @@ This search is **not regex capable**. For regex searches, use the
 built in :Vimgrep for now. Since this plugin relies on the shell grep
 command, this plugin does not work on windows platforms.
 
+Results of searches are loaded into the quickfix list along with
+some feedback displaying number of results found. The quickfix
+window is opened automatically. Just scroll to the file you would
+like to open and hit enter. The buffer will load into the current
+buffer window if empty, or a new tab otherwise.
+
 Mappings
 --------
 
