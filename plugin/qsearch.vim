@@ -84,9 +84,9 @@ fun! qsearch#GetIncludeFileTypes()
     let l:incTemplate = '"--include=\"*.".v:val."\""'
 
     " format included file types list for grep command
-    let l:fileTypes = split(g:QsearchIncludeFileTypes)
-    let l:fileTypes = map(l:fileTypes,l:incTemplate)
-    let l:fileTypes = join(l:fileTypes,' ')
+    let l:fileTypesList = split(g:QsearchIncludeFileTypes)
+    let l:fileTypesList = map(l:fileTypesList,l:incTemplate)
+    let l:fileTypes = join(l:fileTypesList,' ')
 
     return l:fileTypes
 
