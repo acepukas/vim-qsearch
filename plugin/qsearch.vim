@@ -17,7 +17,16 @@
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.0
+" Version:      1.1
+"
+" Release Notes:
+"
+"               1.1: 
+"                 - can exclude individual files AND use GLOB wildcards for
+"                   exclusion
+"
+"               1.0: 
+"                 - initial version
 "
 " ------------------------------------------------------------------------------
 
@@ -92,6 +101,24 @@ fun! qsearch#GetIncludeFileTypes()
 
 endfun
 
+fun! qsearch#GetExcludeFiles()
+
+    if !exists("g:QsearchExcludeFiles")
+        return ''
+    endif
+
+    " string used for building include string
+    let l:incTemplate = '"--exclude=\"".v:val."\""'
+
+    " format included file types list for grep command
+    let l:filesList = split(g:QsearchExcludeFiles)
+    let l:filesList = map(l:filesList,l:incTemplate)
+    let l:filesStr = join(l:filesList,' ')
+
+    return l:filesStr
+
+endfun
+
 fun! qsearch#GetExcludeDirs()
 
     if !exists("g:QsearchExcludeDirs")
@@ -129,6 +156,7 @@ fun! qsearch#Search(mode,sub)
     let l:grepCmd = []
     call add(l:grepCmd,'grep -Rn')
     call add(l:grepCmd,qsearch#GetIncludeFileTypes())
+    call add(l:grepCmd,qsearch#GetExcludeFiles())
     call add(l:grepCmd,qsearch#GetExcludeDirs())
     call add(l:grepCmd,qsearch#FormatSubject(a:mode,a:sub))
     call add(l:grepCmd,'.')

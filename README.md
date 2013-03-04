@@ -48,3 +48,7 @@ following global variable definition:
 File extension white list set via the following global variable definition:
 
     let g:QsearchIncludeFileTypes = 'js hbs less html json yaml yml'
+
+File black list set via the following global variable definition:
+
+    let g:QsearchExcludeFiles = 'application.css someOtherFile.txt'
