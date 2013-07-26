@@ -163,7 +163,7 @@ fun! qsearch#Search(mode,sub)
 
   " capture results of grep command
   let l:grepCmdFull = join(l:grepCmd,' ')
-  echom l:grepCmdFull
+  " echom l:grepCmdFull
   let l:result = system(l:grepCmdFull)
 
   " give feed back about search and results
@@ -194,7 +194,7 @@ nnoremap <unique> <leader>s "zyiw :call qsearch#Search("normal",@z)<cr>
 vnoremap <unique> <leader>s "zy :call qsearch#Search("visual",@z)<cr>
 
 " search recursively for text entered at command prompt
-command! -nargs=1 Qsearch call qsearch#Search("visual", '"' . escape(<args>) . '"')
+command! -nargs=1 Qsearch call qsearch#Search("visual", <q-args>)
 
 " restore previous line continuation settings
 let &cpo = s:cpo_save
