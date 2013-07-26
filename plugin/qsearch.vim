@@ -33,8 +33,8 @@
 " Plugin Loaded Check
 " ===================
 
-if exists("g:noaded_Qsearch") || &cp
-    finish
+if exists("g:loaded_Qsearch") || &cp
+  finish
 endif
 let g:loaded_Qsearch=1
 
@@ -53,6 +53,7 @@ set cpo&vim
 fun! qsearch#RegexEscape(sub)
 
     let l:sub = substitute(a:sub,"\\.","\\\\.",'g')
+    let l:sub = substitute(l:sub,"\\\"","\\\\"",'g')
     let l:sub = substitute(l:sub,"\[","\\\\[",'g')
     let l:sub = substitute(l:sub,"\n","\\n",'g')
     let l:sub = substitute(l:sub,"\/","\\\\/",'g')
@@ -192,7 +193,7 @@ nnoremap <unique> <leader>s "zyiw :call qsearch#Search("normal",@z)<cr>
 vnoremap <unique> <leader>s "zy :call qsearch#Search("visual",@z)<cr>
 
 " search recursively for text entered at command prompt
-command! -nargs=1 Qsearch call qsearch#Search("visual","<args>")
+command! -nargs=1 Qsearch call qsearch#Search("visual",<args>)
 
 " restore previous line continuation settings
 let &cpo = s:cpo_save
