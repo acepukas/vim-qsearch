@@ -52,95 +52,94 @@ set cpo&vim
 " meaning from interfering with the search
 fun! qsearch#RegexEscape(sub)
 
-    let l:sub = substitute(a:sub,"\\.","\\\\.",'g')
-    " let l:sub = substitute(l:sub,"\\\"","\\\\"",'g')
-    let l:sub = substitute(l:sub,"\[","\\\\[",'g')
-    let l:sub = substitute(l:sub,"\n","\\n",'g')
-    let l:sub = substitute(l:sub,"\/","\\\\/",'g')
-    let l:sub = substitute(l:sub,"\*","\\\\*",'g')
+  let l:sub = substitute(a:sub,"\\.","\\\\.",'g')
+  let l:sub = substitute(l:sub,"\[","\\\\[",'g')
+  let l:sub = substitute(l:sub,"\n","\\n",'g')
+  let l:sub = substitute(l:sub,"\/","\\\\/",'g')
+  let l:sub = substitute(l:sub,"\*","\\\\*",'g')
 
-    return l:sub
+  return l:sub
 
 endfun
 
 fun! qsearch#FormatSubject(mode,sub)
 
-    " escape any regex chars with special meaning
-    let l:subject = qsearch#RegexEscape(a:sub)
+  " escape any regex chars with special meaning
+  let l:subject = qsearch#RegexEscape(a:sub)
 
-    " if the search was done with the cursor over a word
-    " which in normal mode, we want to set word boundaries
-    " on either side of the word
-    if a:mode ==# 'normal'
-        let l:subject = '\b' . l:subject . '\b'
-    elseif a:mode ==# 'visual'
-        let l:subject = l:subject
-    endif
+  " if the search was done with the cursor over a word
+  " which in normal mode, we want to set word boundaries
+  " on either side of the word
+  if a:mode ==# 'normal'
+    let l:subject = '\b' . l:subject . '\b'
+  elseif a:mode ==# 'visual'
+    let l:subject = l:subject
+  endif
 
-    " shellescape subject for use in bash/zsh/etc shell
-    let l:subject = shellescape("'" . l:subject . "'")
+  " shellescape subject for use in bash/zsh/etc shell
+  let l:subject = shellescape(l:subject)
 
-    return l:subject
+  return l:subject
 
 endfun
 
 fun! qsearch#GetIncludeFileTypes()
 
-    if !exists("g:QsearchIncludeFileTypes")
-        return ''
-    endif
+  if !exists("g:QsearchIncludeFileTypes")
+    return ''
+  endif
 
-    " string used for building include string
-    let l:incTemplate = '"--include=\"*.".v:val."\""'
+  " string used for building include string
+  let l:incTemplate = '"--include=\"*.".v:val."\""'
 
-    " format included file types list for grep command
-    let l:fileTypesList = split(g:QsearchIncludeFileTypes)
-    let l:fileTypesList = map(l:fileTypesList,l:incTemplate)
-    let l:fileTypes = join(l:fileTypesList,' ')
+  " format included file types list for grep command
+  let l:fileTypesList = split(g:QsearchIncludeFileTypes)
+  let l:fileTypesList = map(l:fileTypesList,l:incTemplate)
+  let l:fileTypes = join(l:fileTypesList,' ')
 
-    return l:fileTypes
+  return l:fileTypes
 
 endfun
 
 fun! qsearch#GetExcludeFiles()
 
-    if !exists("g:QsearchExcludeFiles")
-        return ''
-    endif
+  if !exists("g:QsearchExcludeFiles")
+    return ''
+  endif
 
-    " string used for building include string
-    let l:incTemplate = '"--exclude=\"".v:val."\""'
+  " string used for building include string
+  let l:incTemplate = '"--exclude=\"".v:val."\""'
 
-    " format included file types list for grep command
-    let l:filesList = split(g:QsearchExcludeFiles)
-    let l:filesList = map(l:filesList,l:incTemplate)
-    let l:filesStr = join(l:filesList,' ')
+  " format included file types list for grep command
+  let l:filesList = split(g:QsearchExcludeFiles)
+  let l:filesList = map(l:filesList,l:incTemplate)
+  let l:filesStr = join(l:filesList,' ')
 
-    return l:filesStr
+  return l:filesStr
 
 endfun
 
 fun! qsearch#GetExcludeDirs()
 
-    if !exists("g:QsearchExcludeDirs")
-        return ''
-    endif
+  if !exists("g:QsearchExcludeDirs")
+    return ''
+  endif
 
-    " format excluded directories list for grep command
-    let l:dirs = substitute(g:QsearchExcludeDirs,' ',',','g')
-    let l:dirs = '--exclude-dir={'.l:dirs.'}'
+  " format excluded directories list for grep command
+  let l:dirs = substitute(g:QsearchExcludeDirs,' ',',','g')
+  let l:dirs = '--exclude-dir={'.l:dirs.'}'
 
-    return l:dirs
+  return l:dirs
 
 endfun
 
 fun! qsearch#DisplayFeedback(subject,result)
 
-    " get number of results for feedback message
-    let l:numOfResults = len(split(a:result,'\n'))
+  " get number of results for feedback message
+  let l:numOfResults = len(split(a:result,'\n'))
 
-    " Output feedback indicating search term and number of results found
-    echom "Searched for " . a:subject . " : Found " . l:numOfResults . " result(s)."
+  " Output feedback indicating search term and number of results found
+  echom "Searched for " . a:subject . " : Found " . l:numOfResults . " result(s)."
 
 endfun
 
@@ -149,31 +148,33 @@ endfun
 
 fun! qsearch#Search(mode,sub)
 
-    " set error/quickfix format (corresponds 
-    " to output from grep command)
-    setlocal errorformat=%f:%l:%m
+  " set error/quickfix format (corresponds 
+  " to output from grep command)
+  setlocal errorformat=%f:%l:%m
 
-    " construct grep command from needed components
-    let l:grepCmd = []
-    call add(l:grepCmd,'grep -Rn')
-    call add(l:grepCmd,qsearch#GetIncludeFileTypes())
-    call add(l:grepCmd,qsearch#GetExcludeFiles())
-    call add(l:grepCmd,qsearch#GetExcludeDirs())
-    call add(l:grepCmd,qsearch#FormatSubject(a:mode,a:sub))
-    call add(l:grepCmd,'.')
+  " construct grep command from needed components
+  let l:grepCmd = []
+  call add(l:grepCmd,'grep -Rn')
+  call add(l:grepCmd,qsearch#GetIncludeFileTypes())
+  call add(l:grepCmd,qsearch#GetExcludeFiles())
+  call add(l:grepCmd,qsearch#GetExcludeDirs())
+  call add(l:grepCmd,qsearch#FormatSubject(a:mode,a:sub))
+  call add(l:grepCmd,'.')
 
-    " capture results of grep command
-    let l:result = system(join(l:grepCmd,' '))
+  " capture results of grep command
+  let l:grepCmdFull = join(l:grepCmd,' ')
+  echom l:grepCmdFull
+  let l:result = system(l:grepCmdFull)
 
-    " give feed back about search and results
-    call qsearch#DisplayFeedback(a:sub,l:result)
-    
-    " populate quickfix list with output from grep 
-    " command but don't jump to first error/item
-    cgetexpr l:result
+  " give feed back about search and results
+  call qsearch#DisplayFeedback(a:sub,l:result)
+  
+  " populate quickfix list with output from grep 
+  " command but don't jump to first error/item
+  cgetexpr l:result
 
-    " open quick fix list
-    copen
+  " open quick fix list
+  copen
 
 endfun
 
