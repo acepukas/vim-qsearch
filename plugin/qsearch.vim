@@ -53,7 +53,7 @@ set cpo&vim
 fun! qsearch#RegexEscape(sub)
 
     let l:sub = substitute(a:sub,"\\.","\\\\.",'g')
-    let l:sub = substitute(l:sub,"\\\"","\\\\"",'g')
+    " let l:sub = substitute(l:sub,"\\\"","\\\\"",'g')
     let l:sub = substitute(l:sub,"\[","\\\\[",'g')
     let l:sub = substitute(l:sub,"\n","\\n",'g')
     let l:sub = substitute(l:sub,"\/","\\\\/",'g')
@@ -78,7 +78,7 @@ fun! qsearch#FormatSubject(mode,sub)
     endif
 
     " shellescape subject for use in bash/zsh/etc shell
-    let l:subject = shellescape(l:subject)
+    let l:subject = shellescape("'" . l:subject . "'")
 
     return l:subject
 
