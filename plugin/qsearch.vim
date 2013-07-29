@@ -17,9 +17,17 @@
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.1
+" Version:      1.3
 "
 " Release Notes:
+"
+"               1.3: 
+"                 - using -- before positional args for the grep command.
+"                 Prevents a string like "-ad-" from borking grep
+"
+"               1.2: 
+"                 - Proper escaping of double quotes for :Qsearch args
+"                 (<q-args>)
 "
 "               1.1: 
 "                 - can exclude individual files AND use GLOB wildcards for
@@ -158,11 +166,17 @@ fun! qsearch#Search(mode,sub)
   call add(l:grepCmd,qsearch#GetIncludeFileTypes())
   call add(l:grepCmd,qsearch#GetExcludeFiles())
   call add(l:grepCmd,qsearch#GetExcludeDirs())
+
+  " double dash prevents a string like "-ad-"
+  " being interperated as an option argument
+  call add(l:grepCmd,'--')
+
   call add(l:grepCmd,qsearch#FormatSubject(a:mode,a:sub))
   call add(l:grepCmd,'.')
 
   " capture results of grep command
   let l:grepCmdFull = join(l:grepCmd,' ')
+
   " echom l:grepCmdFull
   let l:result = system(l:grepCmdFull)
 
