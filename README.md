@@ -1,12 +1,11 @@
 Qsearch
 =======
 
-Qsearch is a simple plugin which uses GNU grep to make searching
-files for text recursively (below the current working directory)
-"quicker". Quicker, at least than the built in :vimgrep command.
-This search is **not regex capable**. For regex searches, use the
-built in :vimgrep for now. Since this plugin relies on the shell grep
-command, this plugin does not work on windows platforms.
+Qsearch is a simple plugin which uses [The Silver Searcher](https://github.com/ggreer/the_silver_searcher) to make
+searching files for text recursively (below the current working
+directory) "quicker". Quicker, at least than the built in :vimgrep
+command. This search is **not regex capable, yet**. For regex searches,
+use the built in :vimgrep for now.
 
 Results of searches are loaded into the quickfix list along with
 some feedback displaying number of results found. The quickfix
@@ -40,15 +39,5 @@ Mapping:
 Configuration
 -------------
 
-Directories can be excluded from searches by adding them to the
-following global variable definition:
-
-    let g:QsearchExcludeDirs = 'RCS CVS SCCS .svn generated node_modules .git'
-
-File extension white list set via the following global variable definition:
-
-    let g:QsearchIncludeFileTypes = 'js hbs less html json yaml yml'
-
-File black list set via the following global variable definition:
-
-    let g:QsearchExcludeFiles = 'application.css someOtherFile.txt'
+If you want certain files and directories ignored, add them to the .agignore
+file in the root of your source tree.

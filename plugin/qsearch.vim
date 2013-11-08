@@ -17,9 +17,12 @@
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.3
+" Version:      1.4
 "
 " Release Notes:
+"
+"               1.4: 
+"                 - Using The Silver Searcher instead of grep.
 "
 "               1.3: 
 "                 - using -- before positional args for the grep command.
@@ -65,6 +68,7 @@ fun! qsearch#RegexEscape(sub)
   let l:sub = substitute(l:sub,"\n","\\n",'g')
   let l:sub = substitute(l:sub,"\/","\\\\/",'g')
   let l:sub = substitute(l:sub,"\*","\\\\*",'g')
+  let l:sub = substitute(l:sub,"#","\\\\#",'g')
 
   return l:sub
 
@@ -91,56 +95,6 @@ fun! qsearch#FormatSubject(mode,sub)
 
 endfun
 
-fun! qsearch#GetIncludeFileTypes()
-
-  if !exists("g:QsearchIncludeFileTypes")
-    return ''
-  endif
-
-  " string used for building include string
-  let l:incTemplate = '"--include=\"*.".v:val."\""'
-
-  " format included file types list for grep command
-  let l:fileTypesList = split(g:QsearchIncludeFileTypes)
-  let l:fileTypesList = map(l:fileTypesList,l:incTemplate)
-  let l:fileTypes = join(l:fileTypesList,' ')
-
-  return l:fileTypes
-
-endfun
-
-fun! qsearch#GetExcludeFiles()
-
-  if !exists("g:QsearchExcludeFiles")
-    return ''
-  endif
-
-  " string used for building include string
-  let l:incTemplate = '"--exclude=\"".v:val."\""'
-
-  " format included file types list for grep command
-  let l:filesList = split(g:QsearchExcludeFiles)
-  let l:filesList = map(l:filesList,l:incTemplate)
-  let l:filesStr = join(l:filesList,' ')
-
-  return l:filesStr
-
-endfun
-
-fun! qsearch#GetExcludeDirs()
-
-  if !exists("g:QsearchExcludeDirs")
-    return ''
-  endif
-
-  " format excluded directories list for grep command
-  let l:dirs = substitute(g:QsearchExcludeDirs,' ',',','g')
-  let l:dirs = '--exclude-dir={'.l:dirs.'}'
-
-  return l:dirs
-
-endfun
-
 fun! qsearch#DisplayFeedback(subject,result)
 
   " get number of results for feedback message
@@ -158,27 +112,23 @@ fun! qsearch#Search(mode,sub)
 
   " set error/quickfix format (corresponds 
   " to output from grep command)
-  setlocal errorformat=%f:%l:%m
+  setlocal errorformat=%f:%l:%c:%m
 
   " construct grep command from needed components
-  let l:grepCmd = []
-  call add(l:grepCmd,'grep -Rn')
-  call add(l:grepCmd,qsearch#GetIncludeFileTypes())
-  call add(l:grepCmd,qsearch#GetExcludeFiles())
-  call add(l:grepCmd,qsearch#GetExcludeDirs())
+  let l:searchCmd = []
+  call add(l:searchCmd,'ag --column --nocolor --nogroup')
 
   " double dash prevents a string like "-ad-"
   " being interperated as an option argument
-  call add(l:grepCmd,'--')
+  call add(l:searchCmd,'--')
 
-  call add(l:grepCmd,qsearch#FormatSubject(a:mode,a:sub))
-  call add(l:grepCmd,'.')
+  call add(l:searchCmd,qsearch#FormatSubject(a:mode,a:sub))
 
   " capture results of grep command
-  let l:grepCmdFull = join(l:grepCmd,' ')
+  let l:searchCmdFull = join(l:searchCmd,' ')
 
-  " echom l:grepCmdFull
-  let l:result = system(l:grepCmdFull)
+  " echom l:searchCmdFull
+  let l:result = system(l:searchCmdFull)
 
   " give feed back about search and results
   call qsearch#DisplayFeedback(a:sub,l:result)
