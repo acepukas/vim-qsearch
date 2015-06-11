@@ -8,11 +8,11 @@
 "               visual mode or normal mode.
 "
 "               Also, the search can be initiated via the custom command :Vim
-"               
+"
 "                 :Vim searchTerm
 "
 "               Where the search term can be any string, including spaces.
-"               
+"
 "               Currently this does not support regular expression searching.
 "
 " Author:       Aaron Cepukas
@@ -21,22 +21,22 @@
 "
 " Release Notes:
 "
-"               1.4: 
+"               1.4:
 "                 - Using The Silver Searcher instead of grep.
 "
-"               1.3: 
+"               1.3:
 "                 - using -- before positional args for the grep command.
 "                 Prevents a string like "-ad-" from borking grep
 "
-"               1.2: 
+"               1.2:
 "                 - Proper escaping of double quotes for :Qsearch args
 "                 (<q-args>)
 "
-"               1.1: 
+"               1.1:
 "                 - can exclude individual files AND use GLOB wildcards for
 "                   exclusion
 "
-"               1.0: 
+"               1.0:
 "                 - initial version
 "
 " ------------------------------------------------------------------------------
@@ -69,6 +69,8 @@ fun! qsearch#RegexEscape(sub)
   let l:sub = substitute(l:sub,"\/","\\\\/",'g')
   let l:sub = substitute(l:sub,"\*","\\\\*",'g')
   let l:sub = substitute(l:sub,"#","\\\\#",'g')
+  let l:sub = substitute(l:sub,"(","\\\\(",'g')
+  let l:sub = substitute(l:sub,")","\\\\)",'g')
 
   return l:sub
 
@@ -132,7 +134,7 @@ fun! qsearch#Search(mode,sub)
 
   " give feed back about search and results
   call qsearch#DisplayFeedback(a:sub,l:result)
-  
+
   " populate quickfix list with output from grep 
   " command but don't jump to first error/item
   cgetexpr l:result
