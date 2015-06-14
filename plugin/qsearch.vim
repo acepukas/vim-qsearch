@@ -1,25 +1,32 @@
 "
-" qsearch.vim -   Lets you search recursively for strings within the current file
-"               system tree using GNU grep. You can filter by file extensions 
-"               and exclude directories from search.
+" qsearch.vim - Lets you search recursively for strings within the current file
+"               system tree using ag (The Silver Searcher). You can filter by
+"               file extensions and exclude directories from search.
 "
-"               Searching can be invoked from the <leader>s combination. Rules
-"               of the search depend on whether the search was initiated from 
-"               visual mode or normal mode.
+"               Searching can be invoked from the <leader>s mapping in normal
+"               or visual mode. Cursor must be over the word your intending to
+"               search for. Rules of the search depend on whether the search was
+"               initiated from visual mode or normal mode.
 "
-"               Also, the search can be initiated via the custom command :Vim
+"               To manually search for a custom literal string:
 "
-"                 :Vim searchTerm
+"                 :Qsearch search term
 "
 "               Where the search term can be any string, including spaces.
 "
-"               Currently this does not support regular expression searching.
+"               To search using a regular expression (ag compatible):
+"
+"                 :QsearchRegex your regex here
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.4
+" Version:      1.5
 "
 " Release Notes:
+"
+"               1.5
+"                 - Accounting for ag (Silver Searcher) literal mode.
+"                   Can search using regular express now.
 "
 "               1.4:
 "                 - Using The Silver Searcher instead of grep.
@@ -58,45 +65,6 @@ set cpo&vim
 " Helper Functions
 " ================
 
-" RegexEscape will escape strings that are to be searched
-" against within a regex, preventing characters with special
-" meaning from interfering with the search
-fun! qsearch#RegexEscape(sub)
-
-  let l:sub = substitute(a:sub,"\\.","\\\\.",'g')
-  let l:sub = substitute(l:sub,"\[","\\\\[",'g')
-  let l:sub = substitute(l:sub,"\n","\\n",'g')
-  let l:sub = substitute(l:sub,"\/","\\\\/",'g')
-  let l:sub = substitute(l:sub,"\*","\\\\*",'g')
-  let l:sub = substitute(l:sub,"#","\\\\#",'g')
-  let l:sub = substitute(l:sub,"(","\\\\(",'g')
-  let l:sub = substitute(l:sub,")","\\\\)",'g')
-
-  return l:sub
-
-endfun
-
-fun! qsearch#FormatSubject(mode,sub)
-
-  " escape any regex chars with special meaning
-  let l:subject = qsearch#RegexEscape(a:sub)
-
-  " if the search was done with the cursor over a word
-  " which in normal mode, we want to set word boundaries
-  " on either side of the word
-  if a:mode ==# 'normal'
-    let l:subject = '\b' . l:subject . '\b'
-  elseif a:mode ==# 'visual'
-    let l:subject = l:subject
-  endif
-
-  " shellescape subject for use in bash/zsh/etc shell
-  let l:subject = shellescape(l:subject)
-
-  return l:subject
-
-endfun
-
 fun! qsearch#DisplayFeedback(subject,result)
 
   " get number of results for feedback message
@@ -124,7 +92,11 @@ fun! qsearch#Search(mode,sub)
   " being interperated as an option argument
   call add(l:searchCmd,'--')
 
-  call add(l:searchCmd,qsearch#FormatSubject(a:mode,a:sub))
+  if a:mode ==# 'literal'
+    call add(l:searchCmd,'-Q')
+  endif
+
+  call add(l:searchCmd, shellescape(a:sub))
 
   " capture results of grep command
   let l:searchCmdFull = join(l:searchCmd,' ')
@@ -154,13 +126,16 @@ endfun
 " This command will yank the inner word text object
 " and pass it to the QsearchSearch search function along
 " with the mode that the command was invoked from.
-nnoremap <unique> <leader>s "zyiw :call qsearch#Search("normal",@z)<cr>
+nnoremap <unique> <leader>s "zyiw :call qsearch#Search("literal",@z)<cr>
 
 " search recursively for visually selected text
-vnoremap <unique> <leader>s "zy :call qsearch#Search("visual",@z)<cr>
+vnoremap <unique> <leader>s "zy :call qsearch#Search("literal",@z)<cr>
 
 " search recursively for text entered at command prompt
-command! -nargs=1 Qsearch call qsearch#Search("visual", <q-args>)
+command! -nargs=1 Qsearch call qsearch#Search("literal", <q-args>)
+
+" search recursively for text entered at command prompt
+command! -nargs=1 QsearchRegex call qsearch#Search("regex", <q-args>)
 
 " restore previous line continuation settings
 let &cpo = s:cpo_save
