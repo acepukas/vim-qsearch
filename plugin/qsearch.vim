@@ -88,13 +88,14 @@ fun! qsearch#Search(mode,sub)
   let l:searchCmd = []
   call add(l:searchCmd,'ag --column --nocolor --nogroup')
 
-  " double dash prevents a string like "-ad-"
-  " being interperated as an option argument
-  call add(l:searchCmd,'--')
-
   if a:mode ==# 'literal'
     call add(l:searchCmd,'-Q')
   endif
+
+  " THIS CLI OPTION MUST BE THE LAST OPTION!
+  " double dash prevents a string like "-ad-"
+  " being interperated as an option argument.
+  call add(l:searchCmd,'--')
 
   call add(l:searchCmd, shellescape(a:sub))
 
