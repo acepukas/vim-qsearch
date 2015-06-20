@@ -20,9 +20,13 @@
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.5
+" Version:      1.6
 "
 " Release Notes:
+"
+"               1.6
+"                 - Searches initiation from normal mode with cursor over word
+"                   will restrict search using word boundry.
 "
 "               1.5
 "                 - Accounting for ag (Silver Searcher) literal mode.
@@ -65,7 +69,7 @@ set cpo&vim
 " Helper Functions
 " ================
 
-fun! qsearch#DisplayFeedback(subject,result)
+fun! qsearch#DisplayFeedback(subject, result)
 
   " get number of results for feedback message
   let l:numOfResults = len(split(a:result,'\n'))
@@ -78,7 +82,15 @@ endfun
 " Search Function
 " ===============
 
-fun! qsearch#Search(mode,sub)
+" Arguments: literal: numeric boolean used to determine if search should be
+"                     literal string search or regex based.
+"
+"            word:    numeric boolean used to determine if search should be
+"                     restricted to word boundries or not.
+"
+"            sub:     string subject of search.
+
+fun! qsearch#Search(literal, word, sub)
 
   " set error/quickfix format (corresponds 
   " to output from grep command)
@@ -88,7 +100,11 @@ fun! qsearch#Search(mode,sub)
   let l:searchCmd = []
   call add(l:searchCmd,'ag --column --nocolor --nogroup')
 
-  if a:mode ==# 'literal'
+  if a:word
+    call add(l:searchCmd,'-w')
+  endif
+
+  if a:literal
     call add(l:searchCmd,'-Q')
   endif
 
@@ -106,7 +122,7 @@ fun! qsearch#Search(mode,sub)
   let l:result = system(l:searchCmdFull)
 
   " give feed back about search and results
-  call qsearch#DisplayFeedback(a:sub,l:result)
+  call qsearch#DisplayFeedback(a:sub, l:result)
 
   " populate quickfix list with output from grep 
   " command but don't jump to first error/item
@@ -125,18 +141,17 @@ endfun
 
 " search recursively for word under character.
 " This command will yank the inner word text object
-" and pass it to the QsearchSearch search function along
-" with the mode that the command was invoked from.
-nnoremap <unique> <leader>s "zyiw :call qsearch#Search("literal",@z)<cr>
+" and pass it to the QsearchSearch search function.
+nnoremap <unique> <leader>s "zyiw :call qsearch#Search(1, 1, @z)<cr>
 
 " search recursively for visually selected text
-vnoremap <unique> <leader>s "zy :call qsearch#Search("literal",@z)<cr>
+vnoremap <unique> <leader>s "zy :call qsearch#Search(1, 0, @z)<cr>
 
 " search recursively for text entered at command prompt
-command! -nargs=1 Qsearch call qsearch#Search("literal", <q-args>)
+command! -nargs=1 Qsearch call qsearch#Search(1, 0, <q-args>)
 
 " search recursively for text entered at command prompt
-command! -nargs=1 QsearchRegex call qsearch#Search("regex", <q-args>)
+command! -nargs=1 QsearchRegex call qsearch#Search(0, 0, <q-args>)
 
 " restore previous line continuation settings
 let &cpo = s:cpo_save
