@@ -20,9 +20,12 @@
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.6
+" Version:      1.7
 "
 " Release Notes:
+"
+"               1.7
+"                 - all seaches now case sensitive
 "
 "               1.6
 "                 - Searches initiation from normal mode with cursor over word
@@ -72,7 +75,7 @@ set cpo&vim
 fun! qsearch#DisplayFeedback(subject, result)
 
   " get number of results for feedback message
-  let l:numOfResults = len(split(a:result,'\n'))
+  let l:numOfResults = len(split(a:result, '\n'))
 
   " Output feedback indicating search term and number of results found
   echom "Searched for " . a:subject . " : Found " . l:numOfResults . " result(s)."
@@ -98,25 +101,31 @@ fun! qsearch#Search(literal, word, sub)
 
   " construct grep command from needed components
   let l:searchCmd = []
-  call add(l:searchCmd,'ag --column --nocolor --nogroup')
+  call add(l:searchCmd, 'ag --column --nocolor --nogroup')
 
+  " case sensitive searching
+  call add(l:searchCmd, '-s')
+
+  " -w flag is for word boundry
   if a:word
-    call add(l:searchCmd,'-w')
+    call add(l:searchCmd, '-w')
   endif
 
+  " -Q flag means the search will be a literal string search and not regex
+  "  based
   if a:literal
-    call add(l:searchCmd,'-Q')
+    call add(l:searchCmd, '-Q')
   endif
 
   " THIS CLI OPTION MUST BE THE LAST OPTION!
   " double dash prevents a string like "-ad-"
   " being interperated as an option argument.
-  call add(l:searchCmd,'--')
+  call add(l:searchCmd, '--')
 
   call add(l:searchCmd, shellescape(a:sub))
 
   " capture results of grep command
-  let l:searchCmdFull = join(l:searchCmd,' ')
+  let l:searchCmdFull = join(l:searchCmd, ' ')
 
   " echom l:searchCmdFull
   let l:result = system(l:searchCmdFull)
