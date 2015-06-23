@@ -20,9 +20,17 @@
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.7
+" Version:      1.8
 "
 " Release Notes:
+"
+"               1.8
+"                 - Can search within open buffers now.
+"                 - Commands have changed:
+"                     Qsearch: Performs literal search
+"                     QsearchWord: Performs literal search with word boundaries
+"                     QsearchRegex: Regex based search
+"                     QsearchOpen: Search literal in all open buffers
 "
 "               1.7
 "                 - all seaches now case sensitive
@@ -69,6 +77,13 @@ let g:loaded_Qsearch=1
 let s:cpo_save = &cpo
 set cpo&vim
 
+" base search command and options
+let s:cmdMain = 'ag --column --nocolor --nogroup -s'
+let s:wordOpt = '-w'
+let s:literalOpt = '-Q'
+let s:separator = '--'
+
+
 " Helper Functions
 " ================
 
@@ -96,11 +111,7 @@ fun! BuffersList()
   return res
 endfun
 
-let s:cmdMain = 'ag --column --nocolor --nogroup -s'
-let s:wordOpt = '-w'
-let s:literalOpt = '-Q'
-let s:separator = '--'
-
+" regex search
 fun! qsearch#search(sub)
   let l:cmd = [
     \ s:cmdMain,
@@ -109,15 +120,17 @@ fun! qsearch#search(sub)
   call qsearch#runSearch(a:sub, join(l:cmd, ' '))
 endfun
 
+" regex search open buffers
 fun! qsearch#searchOpen(sub)
   let l:cmd = [
     \ s:cmdMain,
     \ s:separator,
     \ shellescape(a:sub),
-    \ call BuffersList()]
+    \ join(BuffersList(), ' ')]
   call qsearch#runSearch(a:sub, join(l:cmd, ' '))
 endfun
 
+" literal search
 fun! qsearch#searchLiteral(sub)
   let l:cmd = [
     \ s:cmdMain,
@@ -127,6 +140,7 @@ fun! qsearch#searchLiteral(sub)
   call qsearch#runSearch(a:sub, join(l:cmd, ' '))
 endfun
 
+" literal search with word boundaries
 fun! qsearch#searchLiteralWord(sub)
   let l:cmd = [
     \ s:cmdMain,
@@ -137,16 +151,18 @@ fun! qsearch#searchLiteralWord(sub)
   call qsearch#runSearch(a:sub, join(l:cmd, ' '))
 endfun
 
+" literal search open buffers
 fun! qsearch#searchLiteralOpen(sub)
   let l:cmd = [
     \ s:cmdMain,
     \ s:literalOpt,
     \ s:separator,
     \ shellescape(a:sub),
-    \ call BuffersList()]
+    \ join(BuffersList(), ' ')]
   call qsearch#runSearch(a:sub, join(l:cmd, ' '))
 endfun
 
+" literal search open buffers with word boundaries
 fun! qsearch#searchLiteralWordOpen(sub)
   let l:cmd = [
     \ s:cmdMain,
@@ -154,20 +170,16 @@ fun! qsearch#searchLiteralWordOpen(sub)
     \ s:literalOpt,
     \ s:separator,
     \ shellescape(a:sub),
-    \ call BuffersList()]
+    \ join(BuffersList(), ' ')]
   call qsearch#runSearch(a:sub, join(l:cmd, ' '))
 endfun
 
 " Search Function
 " ===============
 
-" Arguments: literal: numeric boolean used to determine if search should be
-"                     literal string search or regex based.
+" sub:     string subject of search.
 "
-"            word:    numeric boolean used to determine if search should be
-"                     restricted to word boundries or not.
-"
-"            sub:     string subject of search.
+" cmd:     constructed command to run in shell
 
 fun! qsearch#runSearch(sub, cmd)
 
@@ -178,15 +190,15 @@ fun! qsearch#runSearch(sub, cmd)
   " echom l:searchCmdFull
   let l:result = system(a:cmd)
 
-  " give feed back about search and results
-  call qsearch#DisplayFeedback(a:sub, l:result)
-
   " populate quickfix list with output from grep 
   " command but don't jump to first error/item
   cgetexpr l:result
 
   " open quick fix list
   copen
+
+  " give feed back about search and results
+  call qsearch#DisplayFeedback(a:sub, l:result)
 
 endfun
 
@@ -196,20 +208,36 @@ endfun
 " These commands are used to initiate the search function
 " in different ways depending on the context.
 
-" search recursively for text entered at command prompt
+" search recursively for text entered at command prompt.
 command! -nargs=1 Qsearch call qsearch#searchLiteral(<q-args>)
 
+" search open buffers for text entered at command prompt.
+command! -nargs=1 QsearchOpen call qsearch#searchLiteralOpen(<q-args>)
+
+" search recursively with word boundary.
 command! -nargs=1 QsearchWord call qsearch#searchLiteralWord(<q-args>)
 
-" search recursively for text entered at command prompt
+" search open buffers with word boundary.
+command! -nargs=1 QsearchWordOpen call qsearch#searchLiteralWordOpen(<q-args>)
+
+" search recursively for text entered at command prompt using PCRE.
 command! -nargs=1 QsearchRegex call qsearch#search(<q-args>)
+
+" search open buffers for text entered at command prompt using PCRE.
+command! -nargs=1 QsearchRegexOpen call qsearch#searchOpen(<q-args>)
 
 " search recursively for word under character. This command will yank the inner
 " word text object and pass it to the QsearchWord search command.
 nnoremap <unique> <leader>s "zyiw :exe ':QsearchWord ' . @z<cr>
 
+" search open buffers for word under cursor.
+nnoremap <unique> <leader>o "zyiw :exe ':QsearchWordOpen ' . @z<cr>
+
 " Search recursively for visually selected text using literal search.
 vnoremap <unique> <leader>s "zy :exe ':Qsearch ' . @z<cr>
+
+" search open buffers for visually selected text using literal search.
+vnoremap <unique> <leader>o "zy :exe ':QsearchOpen ' . @z<cr>
 
 " restore previous line continuation settings
 let &cpo = s:cpo_save
