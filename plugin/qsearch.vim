@@ -100,7 +100,7 @@ endfun
 " BuffersList Function
 " ===================
 
-fun! BuffersList()
+fun! qsearch#buffersList()
   let l:all = range(0, bufnr('$'))
   let l:res = []
   for b in l:all
@@ -123,7 +123,7 @@ endfun
 
 " regex search open buffers
 fun! qsearch#searchOpen(sub)
-  let l:bufs = BuffersList()
+  let l:bufs = qsearch#buffersList()
   if len(l:bufs)
     let l:cmd = [
       \ s:cmdMain,
@@ -159,7 +159,7 @@ endfun
 
 " literal search open buffers
 fun! qsearch#searchLiteralOpen(sub)
-  let l:bufs = BuffersList()
+  let l:bufs = qsearch#buffersList()
   if len(l:bufs)
     let l:cmd = [
       \ s:cmdMain,
@@ -175,7 +175,7 @@ endfun
 
 " literal search open buffers with word boundaries
 fun! qsearch#searchLiteralWordOpen(sub)
-  let l:bufs = BuffersList()
+  let l:bufs = qsearch#buffersList()
   if len(l:bufs)
     let l:cmd = [
       \ s:cmdMain,
