@@ -105,9 +105,9 @@ fun! BuffersList()
   let l:res = []
   let l:cwd = getcwd()
   for b in l:all
-    if buflisted(b)
-      let l:name = substitute(bufname(b), l:cwd, '.', '')
-      call add(l:res, l:name)
+    if buflisted(b) && !empty(glob(bufname(b)))
+      let l:bname = substitute(bufname(b), l:cwd, '.', '')
+      call add(l:res, l:bname)
     endif
   endfor
   return res
@@ -124,12 +124,17 @@ endfun
 
 " regex search open buffers
 fun! qsearch#searchOpen(sub)
-  let l:cmd = [
-    \ s:cmdMain,
-    \ s:separator,
-    \ shellescape(a:sub),
-    \ join(BuffersList(), ' ')]
-  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+  let l:bufs = BuffersList();
+  if count(l:bufs)
+    let l:cmd = [
+      \ s:cmdMain,
+      \ s:separator,
+      \ shellescape(a:sub),
+      \ join(l:bufs, ' ')]
+    call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+  else
+    :echom 'No open buffers'
+  endif
 endfun
 
 " literal search
@@ -155,25 +160,35 @@ endfun
 
 " literal search open buffers
 fun! qsearch#searchLiteralOpen(sub)
-  let l:cmd = [
-    \ s:cmdMain,
-    \ s:literalOpt,
-    \ s:separator,
-    \ shellescape(a:sub),
-    \ join(BuffersList(), ' ')]
-  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+  let l:bufs = BuffersList();
+  if count(l:bufs)
+    let l:cmd = [
+      \ s:cmdMain,
+      \ s:literalOpt,
+      \ s:separator,
+      \ shellescape(a:sub),
+      \ join(l:bufs, ' ')]
+    call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+  else
+    :echom 'No open buffers'
+  endif
 endfun
 
 " literal search open buffers with word boundaries
 fun! qsearch#searchLiteralWordOpen(sub)
-  let l:cmd = [
-    \ s:cmdMain,
-    \ s:wordOpt,
-    \ s:literalOpt,
-    \ s:separator,
-    \ shellescape(a:sub),
-    \ join(BuffersList(), ' ')]
-  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+  let l:bufs = BuffersList();
+  if count(l:bufs)
+    let l:cmd = [
+      \ s:cmdMain,
+      \ s:wordOpt,
+      \ s:literalOpt,
+      \ s:separator,
+      \ shellescape(a:sub),
+      \ join(BuffersList(), ' ')]
+    call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+  else
+    :echom 'No open buffers'
+  endif
 endfun
 
 " Search Function
