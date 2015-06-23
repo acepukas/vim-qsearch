@@ -94,7 +94,7 @@ fun! BuffersList()
     endif
   endfor
   return res
-end
+endfun
 
 let s:cmdMain = 'ag --column --nocolor --nogroup -s'
 let s:wordOpt = '-w'
