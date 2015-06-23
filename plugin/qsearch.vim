@@ -82,6 +82,82 @@ fun! qsearch#DisplayFeedback(subject, result)
 
 endfun
 
+" BuffersList Function
+" ===================
+
+fun! BuffersList()
+  let all = range(0, bufnr('$'))
+  let res = []
+  for b in all
+    if buflisted(b)
+      call add(res, bufname(b))
+    endif
+  endfor
+  return res
+end
+
+let s:cmdMain = 'ag --column --nocolor --nogroup -s'
+let s:wordOpt = '-w'
+let s:literalOpt = '-Q'
+let s:separator = '--'
+
+fun! qsearch#search(sub)
+  let l:cmd = [
+    \ s:cmdMain,
+    \ s:separator,
+    \ shellescape(a:sub) ]
+  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+endfun
+
+fun! qsearch#searchOpen(sub)
+  let l:cmd = [
+    \ s:cmdMain,
+    \ s:separator,
+    \ shellescape(a:sub),
+    \ call BuffersList()]
+  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+endfun
+
+fun! qsearch#searchLiteral(sub)
+  let l:cmd = [
+    \ s:cmdMain,
+    \ s:literalOpt,
+    \ s:separator,
+    \ shellescape(a:sub) ]
+  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+endfun
+
+fun! qsearch#searchLiteralWord(sub)
+  let l:cmd = [
+    \ s:cmdMain,
+    \ s:wordOpt,
+    \ s:literalOpt,
+    \ s:separator,
+    \ shellescape(a:sub) ]
+  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+endfun
+
+fun! qsearch#searchLiteralOpen(sub)
+  let l:cmd = [
+    \ s:cmdMain,
+    \ s:literalOpt,
+    \ s:separator,
+    \ shellescape(a:sub),
+    \ call BuffersList()]
+  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+endfun
+
+fun! qsearch#searchLiteralWordOpen(sub)
+  let l:cmd = [
+    \ s:cmdMain,
+    \ s:wordOpt,
+    \ s:literalOpt,
+    \ s:separator,
+    \ shellescape(a:sub),
+    \ call BuffersList()]
+  call qsearch#runSearch(a:sub, join(l:cmd, ' '))
+endfun
+
 " Search Function
 " ===============
 
@@ -93,42 +169,14 @@ endfun
 "
 "            sub:     string subject of search.
 
-fun! qsearch#Search(literal, word, sub)
+fun! qsearch#runSearch(sub, cmd)
 
   " set error/quickfix format (corresponds 
   " to output from grep command)
   setlocal errorformat=%f:%l:%c:%m
 
-  " construct grep command from needed components
-  let l:searchCmd = []
-  call add(l:searchCmd, 'ag --column --nocolor --nogroup')
-
-  " case sensitive searching
-  call add(l:searchCmd, '-s')
-
-  " -w flag is for word boundry
-  if a:word
-    call add(l:searchCmd, '-w')
-  endif
-
-  " -Q flag means the search will be a literal string search and not regex
-  "  based
-  if a:literal
-    call add(l:searchCmd, '-Q')
-  endif
-
-  " THIS CLI OPTION MUST BE THE LAST OPTION!
-  " double dash prevents a string like "-ad-"
-  " being interperated as an option argument.
-  call add(l:searchCmd, '--')
-
-  call add(l:searchCmd, shellescape(a:sub))
-
-  " capture results of grep command
-  let l:searchCmdFull = join(l:searchCmd, ' ')
-
   " echom l:searchCmdFull
-  let l:result = system(l:searchCmdFull)
+  let l:result = system(a:cmd)
 
   " give feed back about search and results
   call qsearch#DisplayFeedback(a:sub, l:result)
@@ -148,19 +196,20 @@ endfun
 " These commands are used to initiate the search function
 " in different ways depending on the context.
 
-" search recursively for word under character.
-" This command will yank the inner word text object
-" and pass it to the QsearchSearch search function.
-nnoremap <unique> <leader>s "zyiw :call qsearch#Search(1, 1, @z)<cr>
+" search recursively for text entered at command prompt
+command! -nargs=1 Qsearch call qsearch#searchLiteral(<q-args>)
 
-" search recursively for visually selected text
-vnoremap <unique> <leader>s "zy :call qsearch#Search(1, 0, @z)<cr>
+command! -nargs=1 QsearchWord call qsearch#searchLiteralWord(<q-args>)
 
 " search recursively for text entered at command prompt
-command! -nargs=1 Qsearch call qsearch#Search(1, 0, <q-args>)
+command! -nargs=1 QsearchRegex call qsearch#search(<q-args>)
 
-" search recursively for text entered at command prompt
-command! -nargs=1 QsearchRegex call qsearch#Search(0, 0, <q-args>)
+" search recursively for word under character. This command will yank the inner
+" word text object and pass it to the QsearchWord search command.
+nnoremap <unique> <leader>s "zyiw :exe ':QsearchWord ' . @z
+
+" Search recursively for visually selected text using literal search.
+vnoremap <unique> <leader>s "zy :exe ':Qsearch ' . @z
 
 " restore previous line continuation settings
 let &cpo = s:cpo_save
