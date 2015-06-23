@@ -101,11 +101,13 @@ endfun
 " ===================
 
 fun! BuffersList()
-  let all = range(0, bufnr('$'))
-  let res = []
-  for b in all
+  let l:all = range(0, bufnr('$'))
+  let l:res = []
+  let l:cwd = getcwd()
+  for b in l:all
     if buflisted(b)
-      call add(res, bufname(b))
+      let l:name = substitute(bufname(b), l:cwd, '.', '')
+      call add(l:res, l:name)
     endif
   endfor
   return res
