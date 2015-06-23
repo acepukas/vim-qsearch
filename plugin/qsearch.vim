@@ -103,10 +103,9 @@ endfun
 fun! BuffersList()
   let l:all = range(0, bufnr('$'))
   let l:res = []
-  let l:cwd = getcwd()
   for b in l:all
     if buflisted(b) && !empty(glob(bufname(b)))
-      let l:bname = substitute(bufname(b), l:cwd, '.', '')
+      let l:bname = substitute(bufname(b), getcwd(), '.', '')
       call add(l:res, l:bname)
     endif
   endfor
