@@ -206,10 +206,10 @@ command! -nargs=1 QsearchRegex call qsearch#search(<q-args>)
 
 " search recursively for word under character. This command will yank the inner
 " word text object and pass it to the QsearchWord search command.
-nnoremap <unique> <leader>s "zyiw :exe ':QsearchWord ' . @z
+nnoremap <unique> <leader>s "zyiw :exe ':QsearchWord ' . @z<cr>
 
 " Search recursively for visually selected text using literal search.
-vnoremap <unique> <leader>s "zy :exe ':Qsearch ' . @z
+vnoremap <unique> <leader>s "zy :exe ':Qsearch ' . @z<cr>
 
 " restore previous line continuation settings
 let &cpo = s:cpo_save
