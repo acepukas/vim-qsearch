@@ -125,7 +125,7 @@ endfun
 " regex search open buffers
 fun! qsearch#searchOpen(sub)
   let l:bufs = BuffersList();
-  if count(l:bufs)
+  if len(l:bufs)
     let l:cmd = [
       \ s:cmdMain,
       \ s:separator,
@@ -161,7 +161,7 @@ endfun
 " literal search open buffers
 fun! qsearch#searchLiteralOpen(sub)
   let l:bufs = BuffersList();
-  if count(l:bufs)
+  if len(l:bufs)
     let l:cmd = [
       \ s:cmdMain,
       \ s:literalOpt,
@@ -177,7 +177,7 @@ endfun
 " literal search open buffers with word boundaries
 fun! qsearch#searchLiteralWordOpen(sub)
   let l:bufs = BuffersList();
-  if count(l:bufs)
+  if len(l:bufs)
     let l:cmd = [
       \ s:cmdMain,
       \ s:wordOpt,
