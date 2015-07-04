@@ -20,9 +20,13 @@
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.8
+" Version:      1.9
 "
 " Release Notes:
+"
+"               1.9
+"                 - Quickfix window spans bottom regardless of vertical split
+"                   of window that initiated search.
 "
 "               1.8
 "                 - Can search within open buffers now.
@@ -211,7 +215,7 @@ fun! qsearch#runSearch(sub, cmd)
   cgetexpr l:result
 
   " open quick fix list
-  copen
+  botright copen
 
   " give feed back about search and results
   call qsearch#DisplayFeedback(a:sub, l:result)
