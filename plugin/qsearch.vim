@@ -1,7 +1,7 @@
 "
 " qsearch.vim - Lets you search recursively for strings within the current file
-"               system tree using ag (The Silver Searcher). You can filter by
-"               file extensions and exclude directories from search.
+"               system tree using ripgrep. You can filter by file extensions and
+"               exclude directories from search.
 "
 "               Searching can be invoked from the <leader>s mapping in normal
 "               or visual mode. Cursor must be over the word your intending to
@@ -10,19 +10,22 @@
 "
 "               To manually search for a custom literal string:
 "
-"                 :Qsearch search term
+"                 :Qsearch {query}
 "
 "               Where the search term can be any string, including spaces.
 "
-"               To search using a regular expression (ag compatible):
+"               To search using a regular expression (ripgrep compatible):
 "
-"                 :QsearchRegex your regex here
+"                 :QsearchRegex {query}
 "
 " Author:       Aaron Cepukas
 "
-" Version:      1.9
+" Version:      1.10
 "
 " Release Notes:
+"
+"               1.10
+"                 - Using ripgrep instead of silver searcher (it's faster)
 "
 "               1.9
 "                 - Quickfix window spans bottom regardless of vertical split
@@ -82,9 +85,10 @@ let s:cpo_save = &cpo
 set cpo&vim
 
 " base search command and options
-let s:cmdMain = 'ag --column --nocolor --nogroup -s'
-let s:wordOpt = '-w'
-let s:literalOpt = '-Q'
+" let s:cmdMain = 'ag --column --nocolor --nogroup -s'
+let s:cmdMain = 'rg --hidden --vimgrep --no-heading --follow --ignore-file ~/.ignore'
+let s:wordOpt = '--word-regexp'
+let s:literalOpt = '--fixed-strings'
 let s:separator = '--'
 
 
@@ -187,7 +191,7 @@ fun! qsearch#searchLiteralWordOpen(sub)
       \ s:literalOpt,
       \ s:separator,
       \ shellescape(a:sub),
-      \ join(BuffersList(), ' ')]
+      \ join(qsearch#buffersList(), ' ')]
     call qsearch#runSearch(a:sub, join(l:cmd, ' '))
   else
     :echom 'No open buffers'
@@ -245,6 +249,9 @@ command! -nargs=1 QsearchRegex call qsearch#search(<q-args>)
 
 " search open buffers for text entered at command prompt using PCRE.
 command! -nargs=1 QsearchRegexOpen call qsearch#searchOpen(<q-args>)
+
+" Display Qsearch prompt
+nnoremap <unique> <leader>q :Qsearch 
 
 " search recursively for word under character. This command will yank the inner
 " word text object and pass it to the QsearchWord search command.

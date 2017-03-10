@@ -1,7 +1,7 @@
 Qsearch
 =======
 
-Qsearch is a simple plugin which uses [The Silver Searcher](https://github.com/ggreer/the_silver_searcher) to make
+Qsearch is a simple plugin which uses [ripgrep](https://github.com/BurntSushi/ripgrep) to make
 searching files for text recursively (below the current working
 directory) "quicker". Quicker, at least than the built in :vimgrep
 command.
@@ -44,6 +44,6 @@ Mapping:
 Configuration
 -------------
 
-If you want certain files and directories ignored, add them to the .agignore
+If you want certain files and directories ignored, add them to the .ignore
 file in the root of your source tree. .gitignore files work as well, including
 global .gitignore.
